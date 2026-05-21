@@ -1,1 +1,1 @@
-from view.connexion_ecran import ConnexionEcran
+from view.app import App

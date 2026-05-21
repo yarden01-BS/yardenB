@@ -16,7 +16,7 @@ pool = mysql.connector.pooling.MySQLConnectionPool(
 class Database:
     def __enter__(self):
         self.connection: MySQLConnection = pool.get_connection()
-        self.cursor: MySQLCursor = self.connection.cursor()
+        self.cursor: MySQLCursor = self.connection.cursor(dictionary=True)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

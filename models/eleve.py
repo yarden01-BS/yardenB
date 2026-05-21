@@ -1,16 +1,28 @@
-from dataclasses import dataclass
-from datetime import datetime, date
+from dataclasses import dataclass, field
+from datetime import date, datetime
+from enum import Enum
+from typing import Optional
+
+
+class Cycle(Enum):
+    PRIMAIRE = "Primaire"
+    COLLEGE = "Collège"
+    LYCEE = "Lycée"
+    UNIVERSITE = "Université"
 
 
 @dataclass
 class Eleve:
-    id: int
     nom: str
     prenom: str
     date_naissance: date
     email: str
+    telephone: str
     adresse: str
     classe: str
-    telephone: str
-    date_inscription: datetime
     matricule: str
+    cycle: Cycle
+    situation_financiere: str
+    id: Optional[int] = None
+    date_inscription: datetime = field(default_factory=datetime.now)
+
