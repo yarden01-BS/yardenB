@@ -58,7 +58,7 @@ print("=" * 50)
 tous = service.afficher_eleves()
 if tous:
     for e in tous:
-        print(f"  {e}")
+        print(f"  [{e['id']}] {e['prenom']} {e['nom']} — {e['classe']} — {e['cycle']}")
 else:
     print("  ⚠️  Aucun élève trouvé.")
 
@@ -73,7 +73,7 @@ print("=" * 50)
 resultats = service.rechercher_par_nom("Mbemba")
 if resultats:
     for e in resultats:
-        print(f"  ✅ Trouvé : {e}")
+        print(f"  ✅ Trouvé : [{e['id']}] {e['prenom']} {e['nom']} — {e['matricule']}")
 else:
     print("  ⚠️  Aucun élève trouvé avec ce nom.")
 
@@ -87,13 +87,14 @@ print("=" * 50)
 
 eleve_trouve = service.rechercher_par_matricule("MAT-2024-002")
 if eleve_trouve:
-    print(f"  ✅ Trouvé : {eleve_trouve}")
+    print(f"  ✅ Trouvé : [{eleve_trouve['id']}] {eleve_trouve['prenom']} {eleve_trouve['nom']}")
+    print(f"     Cycle : {eleve_trouve['cycle']} | Situation : {eleve_trouve['situation_financiere']}")
 else:
     print("  ⚠️  Aucun élève trouvé avec ce matricule.")
 
 
 # ─────────────────────────────────────────
-# 5. MODIFIER un élève (on récupère l'id via le matricule)
+# 5. MODIFIER un élève (id récupéré depuis le dico)
 # ─────────────────────────────────────────
 print("\n" + "=" * 50)
 print("TEST 5 — Modification de l'élève MAT-2024-001")
@@ -101,19 +102,19 @@ print("=" * 50)
 
 eleve_existant = service.rechercher_par_matricule("MAT-2024-001")
 if eleve_existant:
-    eleve_id = eleve_existant[0]  # l'id est généralement la 1ère colonne
+    eleve_id = eleve_existant["id"]   # ← clé du dictionnaire
     eleve_modifie = Eleve(
-        nom="Mbemba", prenom="Jean-Pierre",       # prénom modifié
+        nom="Mbemba", prenom="Jean-Pierre",        # prénom modifié
         date_naissance="2005-03-15",
-        email="jeanpierre.mbemba@email.com",       # email modifié
+        email="jeanpierre.mbemba@email.com",        # email modifié
         telephone="06 12 34 56 78",
         adresse="12 Rue de la Paix, Brazzaville",
         classe="Terminale S", matricule="MAT-2024-001",
-        situation_financiere="Sans bourse",        # situation modifiée
+        situation_financiere="Sans bourse",         # situation modifiée
         cycle=Cycle.LYCEE
     )
     service.modifier_eleve(eleve_id, eleve_modifie)
-    print(f"  ✅ Élève {eleve_id} modifié avec succès.")
+    print(f"  ✅ Élève id={eleve_id} modifié avec succès.")
 else:
     print("  ⚠️  Élève introuvable, modification annulée.")
 
@@ -126,7 +127,12 @@ print("TEST 6 — Vérification après modification")
 print("=" * 50)
 
 verification = service.rechercher_par_matricule("MAT-2024-001")
-print(f"  Résultat : {verification}")
+if verification:
+    print(f"  Prénom    : {verification['prenom']}")
+    print(f"  Email     : {verification['email']}")
+    print(f"  Situation : {verification['situation_financiere']}")
+else:
+    print("  ⚠️  Élève introuvable.")
 
 
 # ─────────────────────────────────────────
@@ -138,9 +144,9 @@ print("=" * 50)
 
 eleve_a_supprimer = service.rechercher_par_matricule("MAT-2024-003")
 if eleve_a_supprimer:
-    eleve_id = eleve_a_supprimer[0]
+    eleve_id = eleve_a_supprimer["id"]   # ← clé du dictionnaire
     service.supprimer_eleve(eleve_id)
-    print(f"  ✅ Élève {eleve_id} supprimé avec succès.")
+    print(f"  ✅ Élève id={eleve_id} supprimé avec succès.")
 else:
     print("  ⚠️  Élève introuvable, suppression annulée.")
 
@@ -152,11 +158,11 @@ print("\n" + "=" * 50)
 print("TEST 8 — Vérification après suppression")
 print("=" * 50)
 
-verification = service.rechercher_par_matricule("MAT-2024-003")
-if not verification:
-    print("  ✅ Suppression confirmée, élève introuvable.")
-else:
+try:
+    verification = service.rechercher_par_matricule("MAT-2024-003")
     print(f"  ⚠️  L'élève existe encore : {verification}")
+except ValueError as e:
+    print(f"  ✅ Suppression confirmée : {e}")
 
 
 # ─────────────────────────────────────────
@@ -169,6 +175,6 @@ print("=" * 50)
 final = service.afficher_eleves()
 print(f"  Nombre d'élèves en base : {len(final)}")
 for e in final:
-    print(f"  {e}")
+    print(f"  [{e['id']}] {e['prenom']} {e['nom']} — {e['matricule']} — {e['cycle']}")
 
 print("\n✅ Tous les tests sont terminés.")

@@ -8,10 +8,8 @@ class EleveService:
 
     def _valider_texte(self, valeur: str, message: str):
         valeur = valeur.strip()
-
         if not valeur:
             raise ValueError(message)
-
         return valeur
 
     def afficher_eleves(self):
@@ -45,12 +43,11 @@ class EleveService:
             eleve.matricule, "Le matricule est obligatoire"
         )
         ancien = self.dao.rechercher_par_matricule(eleve.matricule)
-        if ancien and ancien.id != id:
+        if ancien and ancien["id"] != id:
             raise ValueError("Ce matricule est déjà utilisé")
         self.dao.modifier_eleve(id, eleve)
 
     def supprimer_eleve(self, id: int):
         if id <= 0:
             raise ValueError("ID invalide")
-
         self.dao.supprimer_eleve(id)
