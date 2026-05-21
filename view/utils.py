@@ -26,3 +26,7 @@ def styleTreview():
         background="#313244",  # Couleur de fond des en-têtes
         foreground="white",  # Couleur du texte des en-têtes
     )
+
+    style.map("Treeview.Heading",
+        background=[("active", "none")],
+    )

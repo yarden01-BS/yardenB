@@ -1,3 +1,5 @@
+from sqlite3 import Cursor
+
 import customtkinter as ctk
 from tkinter import ttk, messagebox
 from controllers.eleve_controller import EleveController
@@ -22,7 +24,7 @@ class GestionEcran(ctk.CTkFrame):
         self.var_tel = ctk.StringVar()
         self.var_cyc = ctk.StringVar(value="Lycée")
         self.var_sex = ctk.StringVar(value="Masculin")
-        self.var_sit = ctk.StringVar()
+        self.var_sit = ctk.StringVar(value="À jour")
         self.var_recherche = ctk.StringVar()
         self.filtre_recherche = ctk.StringVar(value="Matricule")
 
@@ -119,7 +121,13 @@ class GestionEcran(ctk.CTkFrame):
             font=("Segoe UI", 11),
         ).grid(row=4, column=1, padx=10, pady=8, sticky="w")
         lbl("SITUATION : ", 4, 2)
-        ent(self.var_sit, 4, 3, "/9 mois")
+        ctk.CTkComboBox(
+            self.form_frame,
+            values=["À jour", "En retard", "Exonéré", "Partiellement payé"],
+            variable=self.var_sit,
+            width=180,
+            font=("Segoe UI", 11),
+        ).grid(row=4, column=3, padx=10, pady=8, sticky="w")
 
         # Ligne 5 : Dates
         lbl("DATE NAISSANCE : ", 5, 0)
@@ -188,6 +196,7 @@ class GestionEcran(ctk.CTkFrame):
                 width=120,
                 font=("Segoe UI", 12, "bold"),
                 command=b["command"],
+                cursor="hand2",
             ).grid(row=row_idx, column=col_idx, padx=10, pady=5)
 
         # --- TABLEAU ---
@@ -240,6 +249,17 @@ class GestionEcran(ctk.CTkFrame):
 
         for eleve_dict in liste_eleves:
             self.tree.insert("", "end", values=[eleve_dict[c] for c in colonnes_db])
+
+        # ← AJOUTE CECI : ajustement automatique après insertion
+        for col in colonnes_db:
+            largeur_header = len(col.replace("_", " ").upper()) * 9
+            largeur_max = largeur_header
+            for item in self.tree.get_children():
+                valeur = str(self.tree.set(item, col))
+                largeur_cellule = len(valeur) * 8
+                if largeur_cellule > largeur_max:
+                    largeur_max = largeur_cellule
+            self.tree.column(col, width=largeur_max + 20)  # +20 = padding
 
     def on_ligne_selectionnee(self, event):
         selection = self.tree.selection()
@@ -346,7 +366,6 @@ class GestionEcran(ctk.CTkFrame):
         if not resultat:
             messagebox.showinfo("Recherche", "Aucun résultat trouvé.")
             return  # ← on ne touche pas au tableau
-
         self.charger_donnees_depuis_db(donnees_filtrees=resultat)
 
     def action_afficher(self):
@@ -364,17 +383,16 @@ class GestionEcran(ctk.CTkFrame):
             self.var_adr,
             self.var_mail,
             self.var_tel,
-            self.var_sit,
             self.var_recherche,
         ]:
             v.set("")
         self.var_cyc.set("Lycée")
         self.var_sex.set("Masculin")
+        self.var_sit.set("À jour")
         self.filtre_recherche.set("Matricule")
         self.dp_naissance.reset()
         self.dp_inscription.reset()
 
     def action_retour(self):
         from view.connexion_ecran import ConnexionEcran
-
         self.controller.show_frame(ConnexionEcran)
