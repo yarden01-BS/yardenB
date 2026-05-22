@@ -1,5 +1,3 @@
-from sqlite3 import Cursor
-
 import customtkinter as ctk
 from tkinter import ttk, messagebox
 from controllers.eleve_controller import EleveController

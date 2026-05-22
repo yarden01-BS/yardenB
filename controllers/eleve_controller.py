@@ -49,8 +49,16 @@ class EleveController:
             enum_cycle = self._convertir_en_enum_cycle(cycle_chaine)
 
             # Dates exigées par la base de données (valeurs par défaut)
-            date_naissance = datetime.date.today()
-            date_inscription = datetime.datetime.now()
+            brut_date = donnees_formulaire.get("Date_naissance", "").strip()
+            date_naissance = None
+            for fmt in ("%d/%m/%Y", "%Y-%m-%d"):
+                try:
+                    date_naissance = datetime.datetime.strptime(brut_date, fmt).date()
+                    break
+                except ValueError:
+                    continue
+            if date_naissance is None:
+                return False, f"Date de naissance invalide : « {brut_date} »"
 
             # --- ÉTAPE 3 : Instanciation du modèle Eleve avec l'Enum Cycle ---
             nouvel_eleve = Eleve(
@@ -65,7 +73,7 @@ class EleveController:
                 matricule=matricule,
                 cycle=enum_cycle,  # Ici, l'objet reçoit bien l'instance de l'Enum (ex: Cycle.LYCEE)
                 situation_financiere=situation_financiere,
-                date_inscription=date_inscription,
+                date_inscription=datetime.datetime.now(),
             )
 
             # --- ÉTAPE 4 : Envoi à la couche Service ---
@@ -81,7 +89,9 @@ class EleveController:
             # Capture les pannes de base de données ou de connexion
             return False, f"Une erreur technique est survenue : {str(e)}"
 
-    def verifier_et_modifier_eleve(self, id: int, donnees_formulaire, cycle_chaine: str):
+    def verifier_et_modifier_eleve(
+        self, id: int, donnees_formulaire, cycle_chaine: str
+    ):
         """
         1. Valide que tous les champs sont remplis.
         2. Convertit le cycle en Enum.

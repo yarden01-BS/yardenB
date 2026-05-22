@@ -53,7 +53,7 @@ class ConnexionEcran(tk.Frame):
 
         tk.Label(
             self.card,
-            text="Utilisateur :",
+            text="Identifiant:",
             font=("Segoe UI", 10, "bold"),
             fg="#89b4fa",
             bg="#2b2b3b",
